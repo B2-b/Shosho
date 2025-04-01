@@ -251,7 +251,8 @@
        const producerIcons = { stagiaire: 'fas fa-user-graduate', module: 'fas fa-cogs', serveur: 'fas fa-server', serveur_lunaire: 'fas fa-database', serveur_mars: 'fas fa-network-wired', ia_neuronal: 'fas fa-brain', mineur_buzz: 'fas fa-bullhorn' };
        const randomEvents = [ { id: 'codeRush', name: 'Rush de Code !', description: 'Boost de productivité ! (+50% QPS)', duration: 60, effect: { tempMultiplierBPS: 1.5 }, notificationIcon: 'fas fa-coffee', weight: 5, isNegative: false }, { id: 'inspiration', name: 'Éclair de Génie !', description: 'Les idées fusent ! (x3 QPC)', duration: 30, effect: { tempMultiplierBPC: 3.0 }, notificationIcon: 'fas fa-lightbulb', weight: 4, isNegative: false }, { id: 'serverCrash', name: 'Crash Serveur Mineur !', description: 'Oups. Ralentissement de la génération. (-25% QPS)', duration: 90, effect: { tempMultiplierBPS: 0.75 }, notificationIcon: 'fas fa-fire-extinguisher', weight: 2, isNegative: true }, { id: 'apiDemand', name: 'Forte Demande API !', description: 'Le prix des questions monte ! (x1.5 Prix)', duration: 120, effect: { tempBonePriceMultiplier: 1.5 }, notificationIcon: 'fas fa-chart-line', weight: 1, isNegative: false } ];
        const MIN_TIME_BETWEEN_EVENTS = 90 * 1000; const EVENT_TRIGGER_CHANCE_PER_SECOND = 0.015;
-
+       const soundFiles = { click: 'assets/click.mp3', upgrade: 'assets/upgrade_purchase.mp3', milestone: 'assets/milestone_achieved.mp3', notification: 'assets/notification_popup.mp3', mutation_bonus: 'assets/mutation_bonus.mp3',
+};
        // --- Game State Object ---
        const gameState = {
            bones: 0, bonesPerClick: 1, totalClicks: 0, bonesPerSecond: 0, earnedTotal: 0,
