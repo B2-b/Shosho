@@ -296,7 +296,38 @@
 
        // --- Audio Functions ---
        function initAudio() { if (audioCtx) return; try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') { console.log("AudioContext suspendu, reprise à l'interaction."); } loadSounds(); } catch (e) { console.error("Web Audio API non supportée.", e); showNotification("Audio non supporté ou bloqué.", "fas fa-volume-mute", false); gameState.isMuted = true; updateMuteButtonIcon(); } }
-       async function loadSounds() { if (soundsLoaded || !audioCtx) return; console.log("Chargement sons (placeholders)..."); const soundNames = ['click', 'upgrade', 'milestone', 'notification', 'mutation_bonus', 'error']; try { soundNames.forEach(name => { const buffer = audioCtx.createBuffer(1, 1, audioCtx.sampleRate); soundBuffers[name] = buffer; }); soundsLoaded = true; console.log("Placeholders sons chargés."); } catch(e) { console.error("Erreur création placeholders audio:", e); showNotification("Erreur préparation audio.", "fas fa-exclamation-triangle", false); } }
+              async function loadSounds() {
+           if (soundsLoaded || !audioCtx) return;
+           console.log("Chargement des vrais sons..."); // Log updated
+           soundsLoaded = true; // Assume success initially, change on error
+           const loadPromises = Object.entries(soundFiles).map(async ([name, path]) => {
+               try {
+                   const response = await fetch(path);
+                   if (!response.ok) {
+                       throw new Error(`HTTP error! status: ${response.status} for ${path}`);
+                   }
+                   const arrayBuffer = await response.arrayBuffer();
+                   const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+                   soundBuffers[name] = audioBuffer;
+                   console.log(`Son chargé: ${name}`);
+               } catch (e) {
+                   console.error(`Erreur chargement son ${name} (${path}):`, e);
+                   // Keep soundsLoaded = true, but maybe add specific error flags if needed
+                   // Or set soundsLoaded = false if any single sound fails
+                   // showNotification(`Erreur chargement son ${name}.`, "fas fa-exclamation-triangle", false); // Optional user notification
+               }
+           });
+
+           try {
+               await Promise.all(loadPromises);
+               console.log("Tous les sons (tentative) chargés.");
+               // You might want additional checks here if partial loading is unacceptable
+           } catch (e) {
+               console.error("Erreur globale lors du chargement des sons:", e);
+               soundsLoaded = false; // Indicate failure if Promise.all fails (though individual catches handle most)
+               showNotification("Erreur chargement des sons.", "fas fa-exclamation-triangle", false);
+           }
+       }
        function playSound(soundName) { if (gameState.isMuted || !soundsLoaded || !audioCtx || !soundBuffers[soundName]) { return; } const play = () => { try { const source = audioCtx.createBufferSource(); source.buffer = soundBuffers[soundName]; source.connect(audioCtx.destination); source.start(0); } catch (e) { console.error(`Erreur lecture son ${soundName}:`, e); } }; if (audioCtx.state === 'suspended') { audioCtx.resume().then(() => { console.log("AudioContext repris."); play(); }).catch(e => console.error("Erreur reprise AudioContext:", e)); } else if (audioCtx.state === 'running') { play(); } }
        function updateMuteButtonIcon() { if (muteBtn) { const muteIcon = muteBtn.querySelector('i'); muteIcon.className = gameState.isMuted ? 'fas fa-volume-mute' : 'fas fa-volume-up'; } }
 
